@@ -1,80 +1,60 @@
 #include<iostream>
-#include<string>
-#include<fstream>
-#include<vector>
+#include<set>
+#include<math.h>
 
-std::vector<std::string> tokenize(std::string buffer, std::string delim, std::string garbage)
+bool isAbundant(int x)
 {
-   std::vector<std::string> result;
-   int y = 0;
-   bool active = false;
-   for (int x = 0; x < buffer.size(); x++)
+   int total=1;
+   for (int i=2; i<=(int)(sqrt(x)); i++)
    {
-      if (buffer[x] == garbage[0])
+      if (x%i == 0)
       {
-         continue;
-      }
-      if (buffer[x] == delim[0])
-      {
-         if (!active)
-         {
-            y = x;
-            active = true;
-         }
+         if (i==x/i)
+            total+=i;
          else
-         {
-            result.push_back(buffer.substr(y+1, (x-y)-1));
-            active = false;
-         }
+            total+=(i+(x/i));
       }
    }
-   return result;
-}
 
-std::vector<std::string> bubbleSort(std::vector<std::string> in)
-{
-   bool change = true;
-   int j=in.size();
-   while (j > 1 && change == true) //2+
-   {
-      change = false;
-      for (int i=0; i < j-1; i++)
-      {
-         int comp = in[i].compare(in[i+1]);
-         if (comp == 0)
-            continue;
-         else if (comp > 0)
-         {
-            std::string temp = in[i];
-            in[i] = in[i+1];
-            in[i+1] = temp;
-            change = true;
-         }
-      }
-      j--;
-   }
-   return in;
+   if (total>x)
+      return true;
+   else
+      return false;
 }
 
 int main()
 {
-   std::ifstream fin("problem23.txt",std::ios::in);
-   std::string sline;
-   fin >> sline;
-   std::vector<std::string> sorted = bubbleSort(tokenize(sline,"\"",","));
-
-   unsigned long long int result = 0;
-   for (int i=0; i<sorted.size(); i++)
+   std::set<int> abunNums;
+   for (int i=11; i<28123; i++)
    {
-      unsigned long long int temp=0;
-      for (int j=0; j<sorted[i].size(); j++)
+      if (isAbundant(i))
       {
-         temp+=((int)sorted[i][j] - 64);
+         abunNums.insert(i);
       }
-      result += (temp*(i+1));
+   }
+
+   int total = 0;
+   for (int i=1; i<28123; i++)
+   {
+      for (std::set<int>::iterator it = abunNums.begin(); it!= abunNums.end(); ++it)
+      {
+         if (abunNums.find(i - *it) != abunNums.end())
+         {
+            break;
+         }
+         else if (i - *it < 12)
+         {
+            total+=i;
+            break;
+         }
+         else if (it == (--abunNums.end()))
+         {
+            total+=i;
+            break;
+         }
+      }
    }
    
-   std::cout << result << std::endl;
-
-   return 1;
+   std::cout << total << std::endl;
+   return 0;
 }
